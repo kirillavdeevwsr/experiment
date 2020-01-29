@@ -1,0 +1,87 @@
+section#new-page {
+  background-color: @grey-color;
+  padding: 20px 0;
+  .container {
+    margin: 20px auto;
+    background-color: @white-color;
+    box-shadow: 12px 11px 23px -17px rgba(0,0,0,0.96);
+    padding-bottom: 20px;
+    .new-page-content {
+      .new-page-img {
+        display: flex;
+        justify-content: center;
+        margin: 10px;
+
+        img {
+          max-height: 300px;
+          .md-block({
+            max-height: 200px;
+          });
+        }
+      }
+      h2 {
+        border-bottom: .5px solid @grey-trans;
+        margin: 0;
+        padding: 20px 0;
+      }
+      .new-page-text {
+        padding: 20px 0;
+        border-bottom: .5px solid @grey-trans;
+        b{
+          font-size: 17px;
+          font-style: italic;
+        }
+      }
+      .youtube {
+        display: flex;
+        justify-content: center;
+        padding: 20px 0;
+      }
+      .slider-gallery {
+        position: relative;
+        padding: 0 50px;
+
+        .slider-gallery-item {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 10px;
+        }
+
+        .prev {
+          left: 0;
+        }
+        .next {
+          right: 0;
+        }
+      }
+
+      #courses_sing_up {
+        max-width: 400px;
+        fieldset {
+          margin: 5px 0;
+          display: flex;
+          label,.comment-label {
+            font-weight: bold;
+          }
+          input {
+            padding: 5px;
+            border: 1px solid @blue-color;
+          }
+
+          textarea {
+            padding: 5px;
+            border: 1px solid @blue-color;
+            margin-bottom: 15px;
+          }
+          .error {
+            color: red;
+          }
+        }
+        .about-btn {
+          width: 150px;
+        }
+      }
+    }
+  }
+}

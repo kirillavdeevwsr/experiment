@@ -1,0 +1,294 @@
+//@import "styles.less";
+
+section#header {
+    .header-top {
+        .header-top-menu {
+            ul {
+                li {
+
+                    .header-person {
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        .header-person-avatar {
+                            width: 30px;
+                            height: 30px;
+                            border-radius: 30px;
+                            // background: url(/img/student-logo.png) center no-repeat;
+                            background-size: contain;
+                            margin-right: 10px;
+                            .sm-block({
+                                display: none;
+                            });
+                            img {
+                                line-height: 30px;
+                                border-radius: 50px;
+                            }
+                        }
+                        .header-person-fio {
+                            display: flex;
+                            align-items: center;
+                            .triangle {
+                                margin-left: 5px;
+                                margin-top: -1px;
+                                width: 0;
+                                height: 0;
+                                border-style: solid;
+                                border-width: 8px 5px 0 5px;
+                                border-color: @white-color transparent transparent transparent;
+                            }
+                        }
+                    }
+
+                    .header-actions {
+                        display: flex;
+                        align-items: center;
+                        position: relative;
+                        padding: 10px;
+                        .actions-bell {
+                            background-color: @white-color;
+                            display: flex;
+                            align-items: center;
+                            height: 25px;
+                            border-radius: 20px;
+                            svg {
+                                width: 15px;
+                                height: 15px;
+                                fill: @blue-color;
+                                padding: 5px;
+                            }
+                        }
+                        .actions-status {
+                            position: absolute;
+                            top: 5px;
+                            left: 25px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            background-color: red;
+                            padding: 5px;
+                            border-radius: 20px;
+                            width: 10px;
+                            height: 10px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+section#profile {
+    // background: url(../img/news-bg.jpg) no-repeat;
+    background-color: @grey-color; 
+    font-size: 1.2rem;
+    padding-top: 40px;
+    
+    .profile-menu {
+        .lk-items {
+            margin: 40px 0;
+            a {
+                margin-right: 20px;
+                .sm-block({margin-right: 10px;});
+                padding: 5px 15px;
+                color: @black-color; 
+                border: 1px solid @black-color;
+                border-radius: 20px;
+                &:hover, &.active-profile {
+                    color: @blue-color;
+                    border: 1px solid @blue-color;
+                    border-radius: 20px;
+                }
+            }
+        }
+    }
+
+    p.dobro {
+        .ttu();
+        font-weight: bold;
+    }
+
+    .lk-content {
+        .row-flex();
+        h3 {
+            font-weight: bold;
+            margin: 0;
+            padding: 10px 0;
+            border-bottom: 1px solid @grey-color;
+            padding: 20px;
+        }
+
+        .lk-content-profile {
+            .col();
+            .size(12);
+            .size-md(12);
+            .md-block({
+                margin-bottom: 20px;
+            });
+            box-shadow: 0px -3px 3px 1px rgba( 0, 0, 0, 0.1 );
+            background-color: @white-color;
+            
+            p {
+                margin-bottom: 20px;
+                margin-right: 20px;
+            }
+            p:last-child {
+                margin-bottom: 0;
+            }
+
+            .profile-info {
+                padding: 20px;
+                .row-flex();
+                .profile-info-avatar {
+                    .col();
+                    .size(6);
+                    .size-md(12);
+                    // background: url(/img/student-logo.png) center no-repeat;
+                    height: 150px;
+                    //min-width: 150px;
+                    img {
+                        max-width: 150px;
+                    }
+                    
+                }
+                .profile-info-fields {
+                    .col();
+                    .size(6);
+                    .size-md(12);
+                    table {
+                        tr {
+                            td {
+                                padding: 10px 20px;
+                            }
+                        }
+                        .md-block({
+                            display: flex;
+                            justify-content: center;
+                        });
+                    }
+                }
+            }
+        }
+        
+        .lk-content-oplata {
+            .col();
+            .size(6);
+            .size-md(12);
+            .md-block({margin-bottom: 20px;});
+            background-color: @white-color;
+            box-shadow: 0px -3px 3px 1px rgba( 0, 0, 0, 0.1 );
+            h3 {
+                font-weight: bold;
+                margin: 0;
+                padding: 10px 0;
+                border-bottom: 1px solid @grey-color;
+                padding: 20px;
+            }
+
+            .oplata-info {
+                padding: 20px;
+                overflow-x: scroll;
+                table {
+                    width: 100%;
+                    tr {
+                        th {
+                            padding: 10px 20px;
+                            border: 1px solid @grey-color;
+                            background-color: #fff;
+                            font-weight: bold;
+                            .md-block({
+                                padding: 10px;
+                            });
+                        }
+                        td {
+                            padding: 10px 20px;
+                            text-align: center;
+                            border: 1px solid @grey-color;
+                            .md-block({
+                                padding: 5px 10px;
+                            });
+                        }
+                    }
+                    tr:nth-child(odd) {
+                        background: @grey-color;
+                    } 
+                }
+            }
+        }
+    }
+}
+
+section#raspisanie {
+    a {
+        color: #000;
+    }
+    .active, table tr td:hover {
+        text-align: center;
+        padding: 10px 20px;
+        background-color: @blue-color;
+        color: @white-color;
+        font-weight: bold;
+        border-right: 1px solid @white-color;
+        cursor: pointer;
+        a {
+            color: @white-color;
+        }
+    }
+    .paddings;
+    background-color: @grey-color;
+    .raspisanie-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        .md-block({
+            flex-direction: column;
+        });
+        .raspisanie-week {
+            color: @blue-color;
+            font-weight: bold;
+            padding: 40px 0;
+            .md-block({
+                padding-top: 20px;
+            });
+        }
+    }
+
+    .raspisanie-table {
+        overflow-x: scroll;
+        display: flex;
+        table {
+            tr {
+                th {
+                    text-align: center;
+                    padding: 10px 20px;
+                    background-color: @blue-color;
+                    color: @white-color;
+                    font-weight: bold;
+                    border-right: 1px solid @white-color;
+                }
+
+                td {
+                    text-align: center;
+                    padding: 10px 20px;
+                    border-right: 1px solid @grey-color;
+                }
+
+                th:last-child {
+                    border-right: none;
+                }
+                td:last-child {
+                    border-right: none;
+                }
+            }
+
+            tr:nth-child(odd) {
+                background: @white-color;
+            }
+        }
+
+            .lessons tr td {
+                background-color: #d6f4fc;
+            }
+    }
+}
+

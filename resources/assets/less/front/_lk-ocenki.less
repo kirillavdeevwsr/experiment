@@ -1,0 +1,61 @@
+//@import "styles.less";
+
+section#ocenki {
+    background-color: @grey-color;
+    font-size: 1.2rem;
+    .paddings;
+    .ocenki-month {
+        display: flex;
+        justify-content: space-between;
+        padding-bottom: 30px;
+        a {
+            padding: 5px 7px;
+            background-color: @white-color;
+            border-radius: 5px;
+            transition: all ease-in-out 0.1s;
+            svg {
+                fill: @black-color;
+            }
+            &:hover {
+                background-color: @blue-color;
+                svg {
+                    fill: @white-color;
+                }
+            }
+        }
+        .ocenki-month-name {
+            color: @blue-color;
+            font-weight: bold;
+        }
+    }
+
+    .ocenki-table {
+        overflow-x: scroll;
+        margin-bottom: 40px;
+        table {
+            tr {
+                th {
+                    padding: 10px 20px;
+                    background-color: @blue-color;
+                    border: 1px solid @grey-color;
+                }
+                .ocenki-items {
+                    // width: 100%;
+                }
+
+                td {
+                    padding: 10px 20px;
+                    width: 20px;
+
+                    // width: 100%;
+                }
+            }
+            tr:nth-child(odd) {
+                background: @white-color;
+            } 
+        }
+    }
+}
+.hidden-a{
+    visibility: hidden;
+}

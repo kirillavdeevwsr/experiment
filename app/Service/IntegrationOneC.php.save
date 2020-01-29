@@ -1,0 +1,226 @@
+<?php
+
+namespace App\Service;
+
+use App\Models\Specialty;
+use DB;
+use App\Models\Schedule;
+use App\Models\ScheduleFix;
+use App\Models\TokenApi;
+use Carbon\Carbon;
+
+
+
+class IntegrationOneC
+{
+
+    const WEEKDAYS = [
+        0 => 'Воскресение',
+        1 => 'Понедельник',
+        2 => 'Вторник',
+        3 => 'Среда',
+        4 => 'Четверг',
+        5 => 'Пятница',
+        6 => 'Суббота',
+    ];
+
+    const WEEKTYPES = [
+        0 =>'',
+        1 =>'Нечетная',
+        2 =>'Четная',
+    ];
+
+
+
+    const API = 'http://1capi.uksivt.ru/api/';
+//    const API = '172.17.5.10/api/';
+
+
+
+    //авторизация на 1с.sequencia.ru
+    private function getAuthSequencia(){
+//        токен пока что записывается в бд, нужно переделать на куки
+        $tokenModel= TokenApi::find(1);
+        if(is_null($tokenModel)){
+            $tokenModel = new TokenApi();
+            $tokenModel->token = '';
+            $tokenModel->save();
+        };
+        if (Carbon::parse($tokenModel->updated_at)->diffInMinutes(Carbon::now())>15 or $tokenModel->token ==='') {
+            $data = [
+                'login' => ' О.В.',
+                'password' => 'qzwxec123'
+            ];
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, self::API . 'auth?' . http_build_query($data));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+
+//            return dd(curl_exec($ch->data));
+
+            $res = json_decode(curl_exec($ch), true);
+            if (isset($res['data']) && isset($res['data']['token']) && $res['data']['token']){
+                $tokenModel->update([
+                    'token' => $res['data']['token'],
+                ]);
+            }else{
+                return abort(500);
+            }
+
+        }
+        return ($tokenModel->token);
+
+    }
+
+    //получение шаблона расписания из базы 1с
+    public function getSchedule()
+    {
+
+        $ch = curl_init();
+        $token = $this->getAuthSequencia();
+        curl_setopt($ch, CURLOPT_URL, self::API. 'schedule/?token=' . $token);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        $res = json_decode(curl_exec($ch), true);
+        $sche = $res['data']['schedule'];
+        //записть расписания на месяц в бд
+        if($sche){
+            DB::table('schedules')->delete();
+        }
+        foreach($sche as $key=>$value){
+            for ($i=0; $i<count($value['schedule']); $i++) {
+                $schedule = new Schedule();
+                $schedule->period = $value['period']['name'];
+                $schedule->semester = $value['period']['name'][0];
+                $schedule->branch = $value['branch']['name'];
+                $schedule->group = $value["schedule"][$i]['group']['name'];
+                $schedule->subgroup = $value["schedule"][$i]['subgroup'];
+                $schedule->week_type = array_search($value["schedule"][$i]['weekType'], self::WEEKTYPES);
+                $schedule->lesson_position = $value["schedule"][$i]['lessonPosition'];
+                $schedule->discipline = $value["schedule"][$i]['discipline']['shortName'];
+                $schedule->teacher = $value["schedule"][$i]['teacher']['name'];
+                $schedule->room = $value["schedule"][$i]['room']['name'];
+                $schedule->week_day = array_search($value["schedule"][$i]['weekDay'], self::WEEKDAYS);
+                $schedule->save();
+            }
+        }
+                return true;
+    }
+
+
+    public function getScheduleForDate()
+    {
+        $date =  Carbon::tomorrow()->format('Y-m-d');
+        $dateLast = Carbon::today()->subDays(7)->format('Y-m-d');
+        DB::table('schedule_fixes')->whereDate('date' , '<' , $dateLast)->delete();
+        $ch = curl_init();
+        $token=$this->getAuthSequencia();
+        curl_setopt($ch, CURLOPT_URL, self::API . 'dschedule/?token=' . $token . "&date=". $date);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        $res= json_decode(curl_exec($ch), true);
+//                return dd($fix);
+        if($res['status_code']===200){
+            foreach($res['data']['schedule'] as $key=>$value){
+                $sche = $value['schedule'];
+                if ($sche===[] ){
+                    continue;
+                }else{
+                    foreach($sche as $k=>$v){
+                        $fix = new ScheduleFix();
+                        $fix->period = $value['period']['name'];
+                        $fix->branch = $value['branch']['name'];
+                        $fix->week_type = array_search($value['weekType'], self::WEEKTYPES) ;
+                        $fix->subgroup = $v['subgroup'];
+                        $fix->week_day = array_search($value['weekDay'], self::WEEKDAYS);
+                        $fix->lesson_position = $v['lessonPosition'];
+                        $fix->teacher = $v['teacher']['name'];
+                        $fix->room = $v['room']['name'];
+                        $fix->group = $v['group']['name'];
+                        $fix->discipline = $v['discipline']['shortName'];
+                        $fix->date =$date;
+                        $fix->save();
+                    }
+                }
+            }
+        }else{
+            return abort(500);
+        }
+    }
+
+
+    public function getSpec(){
+//        echo phpinfo();
+        $ch = curl_init();
+        $token=$this->getAuthSequencia();
+        curl_setopt($ch, CURLOPT_URL, self::API. 'specialities?token='. $token);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        $res= json_decode(curl_exec($ch), true);
+
+        if ($res['data']['specialities']){
+            foreach ($res['data']['specialities'] as $specialty){
+                if(empty(Specialty::where('ref_key', $specialty['ref_key'])->first())){
+                    $spec = new Specialty();
+                    $spec->fill($specialty);
+                    $spec->save();
+                }
+            }
+        }else{
+            return abort(500);
+        }
+
+    }
+
+
+    public function getUser($data)
+    {
+        $ch = curl_init();
+        $token = $this->getAuthSequencia();
+        if($token){
+            curl_setopt($ch, CURLOPT_URL, self::API . 'user/?token='. $token . "&" . http_build_query($data));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            $user = json_decode(curl_exec($ch), true);
+            return $user['data'];
+        }
+    }
+
+    public function getStudentAssesssments($key, $month){
+        $ch = curl_init();
+        $token=$this->getAuthSequencia();
+        curl_setopt($ch, CURLOPT_URL, self::API. 'rating/?token=' . $token . '&student_ref_key=' . $key. '&period=' . $month);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        $res= json_decode(curl_exec($ch), true);
+        return $res['data'];
+    }
+
+    public function sendEnrollee($data){
+        $ch = curl_init();
+        $token=$this->getAuthSequencia();
+        $data['token']= $token;
+        curl_setopt($ch, CURLOPT_URL, self::API. 'enrollee');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+        $res = json_decode(curl_exec($ch), true);
+//        return dd($res);
+//        die();
+        if($res['status_code']!=200){
+            return false;
+        }else{
+            return $res['data'];
+        }
+
+
+    }
+
+
+
+
+
+
+
+}
